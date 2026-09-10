@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>똑띠(Talk-Ti) 스테이지 선택</title>
+    <style>
+        /* 기본 배경 및 폰트 */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+            padding: 20px;
+        }
+
+        /* 전체 컨테이너 */
+        .container {
+            background-color: #FEFAF4;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        /* 헤더 영역 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0e8df;
+        }
+
+        .header-title { font-size: 22px; font-weight: 800; color: #333; display: flex; align-items: center; gap: 10px; }
+        .header-badge { background-color: #e9ecef; color: #555; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; letter-spacing: 1px; }
+
+        /* 2x2 그리드 레이아웃 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* 개별 카드 디자인 */
+        .card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 15px 30px rgba(255, 123, 48, 0.15); border: 2px solid #FF7B30; }
+        .stage-label { position: absolute; top: 20px; left: 20px; font-size: 12px; font-weight: 700; color: #999; }
+        .icon { font-size: 45px; margin: 15px 0; }
+
+        /* 요청 문장 말풍선 */
+        .speech-bubble { display: inline-block; background-color: #f8f9fa; border-radius: 12px; padding: 10px 16px; font-size: 14px; font-weight: 700; color: #333; margin-bottom: 20px; position: relative; }
+        .speech-bubble::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid; border-color: #f8f9fa transparent transparent transparent; }
+        .card-title { font-size: 18px; font-weight: 800; color: #222; margin-bottom: 8px; }
+        .card-desc { font-size: 13px; color: #888; line-height: 1.4; margin-bottom: 25px; word-break: keep-all; }
+
+        /* 버튼 */
+        .action-btn { width: 100%; padding: 12px 0; border-radius: 10px; border: 1.5px solid #e0e0e0; background-color: #fff; color: #777; font-size: 15px; font-weight: bold; transition: all 0.3s ease; }
+        .card:hover .action-btn { background-color: #FF7B30; border-color: #FF7B30; color: #fff; }
+
+        @media (max-width: 600px) { .grid-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-title">🤖 똑띠와 함께 체험하기</div>
+            <div class="header-badge">STAGE SELECT</div>
+        </div>
+
+        <div class="grid-container">
+            <!-- STAGE 1 -->
+            <div class="card" onclick="goToInput(1)">
+                <div class="stage-label">STAGE 1</div>
+                <div class="icon">💬</div>
+                <div class="speech-bubble">"○○한테 사진 보내고 싶어"</div>
+                <div class="card-title">카카오톡 사진 보내기</div>
+                <div class="card-desc">친구에게 사진을 보내는 과정을 체험합니다.</div>
+                <button class="action-btn">체험하기</button>
+            </div>
+
+            <!-- STAGE 2 -->
+            <div class="card" onclick="goToInput(2)">
+                <div class="stage-label">STAGE 2</div>
+                <div class="icon">🗺️</div>
+                <div class="speech-bubble">"서울역으로 가고 싶어"</div>
+                <div class="card-title">길찾기</div>
+                <div class="card-desc">원하는 목적지까지 대중교통 길찾기 과정을 체험합니다.</div>
+                <button class="action-btn">체험하기</button>
+            </div>
+
+            <!-- STAGE 3 -->
+            <div class="card" onclick="goToInput(3)">
+                <div class="stage-label">STAGE 3</div>
+                <div class="icon">🚕</div>
+                <div class="speech-bubble">"이태원역 가는 택시 불러줘"</div>
+                <div class="card-title">택시 호출하기</div>
+                <div class="card-desc">원하는 목적지로 택시를 호출하는 과정을 체험합니다.</div>
+                <button class="action-btn">체험하기</button>
+            </div>
+
+            <!-- STAGE 4 -->
+            <div class="card" onclick="goToInput(4)">
+                <div class="stage-label">STAGE 4</div>
+                <div class="icon">☕</div>
+                <div class="speech-bubble">"아메리카노 시켜줘"</div>
+                <div class="card-title">카페 키오스크 주문하기</div>
+                <div class="card-desc">키오스크에서 원하는 메뉴를 주문하는 과정을 체험합니다.</div>
+                <button class="action-btn">체험하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 카드를 클릭했을 때 해당 번호를 가지고 input.html 로 이동합니다.
+        function goToInput(stageNum) {
+            window.location.href = `input.html?stage=${stageNum}`;
+        }
+    </script>
+
+</body>
+</html>

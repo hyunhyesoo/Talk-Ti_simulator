@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>똑띠(Talk-Ti) - 시니어 맞춤형 AI 비서</title>
+    <style>
+        /* 기본 배경 및 폰트 설정 (다른 화면들과 통일감 유지) */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            padding: 20px;
+        }
+
+        /* 메인 컨테이너 */
+        .container {
+            background-color: #FEFAF4;
+            border-radius: 30px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            max-width: 450px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 로고 및 캐릭터 애니메이션 */
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            background-color: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            box-shadow: 0 10px 25px rgba(255, 123, 48, 0.15);
+            border: 4px solid #FF7B30;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 타이틀 */
+        .title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #222;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+        
+        .title span {
+            color: #FF7B30;
+        }
+
+        /* 설명 텍스트 */
+        .desc {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            word-break: keep-all;
+        }
+
+        /* 시작하기 버튼 */
+        .start-btn {
+            background-color: #FF7B30;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 20px 0;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 8px 20px rgba(255, 123, 48, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background-color: #e66a25;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(255, 123, 48, 0.4);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 똑띠 캐릭터(아이콘) 영역 -->
+        <div class="logo-container">
+            🤖
+        </div>
+
+        <!-- 환영 문구 -->
+        <div class="title">
+            똑똑한 스마트폰 가이드,<br><span>똑띠</span>입니다!
+        </div>
+        
+        <div class="desc">
+            복잡한 스마트폰 앱 사용이 어려우셨나요?<br>
+            이제 똑띠가 화면 위에서 직접 알려드릴게요.<br>
+            지금 바로 똑띠를 체험해 보세요!
+        </div>
+
+        <!-- stage.html 로 바로 연결되는 버튼 -->
+        <button class="start-btn" onclick="window.location.href='stage.html'">
+            체험 시작하기
+        </button>
+    </div>
+
+</body>
+</html>

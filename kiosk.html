@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>키오스크 주문 시뮬레이션</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #e9ecef; font-family: 'Pretendard', sans-serif; }
+        .kiosk-container { width: 480px; height: 850px; background-color: #ffffff; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); overflow: hidden; position: relative; display: flex; flex-direction: column; border: 12px solid #222; }
+        
+        .header { background: #333; color: white; text-align: center; padding: 20px; font-size: 24px; font-weight: bold; position: relative; }
+        
+        /* 탭 영역 */
+        .tabs { display: flex; background: #fff; border-bottom: 2px solid #eee; position: relative; z-index: 20; }
+        .tab { flex: 1; text-align: center; padding: 20px 0; font-size: 18px; font-weight: bold; color: #888; cursor: pointer; border-bottom: 4px solid transparent; transition: 0.2s; }
+        .tab.active { color: #E63946; border-bottom: 4px solid #E63946; }
+
+        /* 메뉴 목록 영역 */
+        .menu-list-wrapper { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: #f9f9f9; }
+        .menu-area { flex: 1; padding: 20px 20px 100px 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; overflow-y: auto; align-content: start; position: relative; z-index: 5; }
+        
+        .menu-item { background: #fff; border: 2px solid #eee; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; position: relative; }
+        .menu-item:hover { border-color: #E63946; }
+        .menu-img { width: 100px; height: 100px; background: #ffe3e3; border-radius: 50%; margin: 0 auto 15px; display: flex; justify-content: center; align-items: center; font-size: 40px; }
+        .menu-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; color:#222; }
+        .menu-price { font-size: 16px; color: #E63946; font-weight: bold; }
+
+        /* 하단 장바구니 영역 */
+        .cart-area { height: 140px; background: #fff; border-top: 2px solid #eee; display: flex; align-items: center; padding: 0 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 10; position: relative; }
+        .cart-info { flex: 1; }
+        .cart-total-text { font-size: 16px; color: #888; margin-bottom: 5px; }
+        .cart-total-price { font-size: 28px; font-weight: 900; color: #222; }
+        .cart-count { font-size: 16px; color: #E63946; font-weight: bold; margin-left: 10px; }
+        .pay-btn { background: #E63946; color: white; padding: 20px 30px; border-radius: 12px; font-size: 20px; font-weight: bold; border: none; cursor: pointer; }
+        .pay-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* 모달 공통 설정 */
+        .modal-overlay { position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); z-index: 50; display: none; justify-content: center; align-items: center; }
+        .modal { background: #fff; width: 85%; max-height: 85%; border-radius: 20px; padding: 30px; position: relative; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        /* 상세 옵션 모달 전용 */
+        .option-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 10px; color: #222; }
+        .option-price-preview { text-align: center; font-size: 20px; color: #E63946; font-weight: bold; margin-bottom: 25px; }
+        .option-section-title { font-weight: bold; margin-bottom: 10px; color: #555; }
+        .option-group { display: flex; gap: 10px; margin-bottom: 20px; position: relative; }
+        .option-btn { flex: 1; padding: 15px 5px; border: 2px solid #eee; border-radius: 12px; font-size: 16px; font-weight: bold; background: #fff; cursor: pointer; transition: 0.2s; }
+        .option-btn.ice { color: #258fff; }
+        .option-btn.hot { color: #E63946; }
+        .option-btn.selected { border-color: #333; background: #f5f5f5; color: #222; }
+        .option-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .add-cart-btn { width: 100%; padding: 18px; background: #222; color: white; font-size: 20px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; }
+
+        /* 장바구니 확인 모달 전용 */
+        .cart-list { flex: 1; overflow-y: auto; margin-bottom: 20px; border-top: 2px solid #222; padding-top: 15px; }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 15px 0; }
+        .cart-item-info { font-size: 18px; font-weight: bold; color: #222; }
+        .cart-item-options { font-size: 14px; color: #888; margin-top: 5px; font-weight: normal; }
+        .cart-item-price { font-size: 18px; font-weight: bold; color: #E63946; }
+
+        /* 결제 화면 */
+        .payment-screen { position: absolute; top:0; left:0; right:0; bottom:0; background: #fff; z-index: 60; display: none; flex-direction: column; padding: 30px; text-align: center; justify-content: center; }
+        .pay-method-btn { background: #f9f9f9; border: 2px solid #eee; padding: 25px; border-radius: 16px; font-size: 20px; font-weight: bold; margin-bottom: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 15px; transition: 0.2s; }
+        .pay-method-btn:hover { border-color: #E63946; }
+
+        /* 똑띠 가이드 공통 */
+        .guide-overlay { position: absolute; border: 5px solid #FF7B30; border-radius: inherit; background-color: rgba(255, 123, 48, 0.05); pointer-events: none; animation: blink 1.5s infinite; z-index: 100; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .guide-bubble { position: absolute; background-color: #FF7B30; color: #fff; padding: 14px 20px; border-radius: 20px; font-size: 15px; font-weight: bold; box-shadow: 0 4px 12px rgba(255, 123, 48, 0.3); z-index: 101; text-align: center; line-height: 1.5; word-break: keep-all; }
+        
+        .guide-bubble.pointer-up::after { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); border-width: 0 8px 10px 8px; border-style: solid; border-color: transparent transparent #FF7B30 transparent; }
+        .guide-bubble.pointer-down::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-width: 10px 8px 0 8px; border-style: solid; border-color: #FF7B30 transparent transparent transparent; }
+
+        .loader { border: 8px solid #f3f3f3; border-top: 8px solid #E63946; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto 30px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 똑띠 마이크 버튼 (모든 화면 공통 적용 가능) */
+        .global-mic-btn { position: absolute; bottom: 160px; right: 20px; width: 65px; height: 65px; background: #FF7B30; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; color: white; box-shadow: 0 4px 15px rgba(255,123,48,0.5); cursor: pointer; z-index: 999; border: 4px solid #fff; transition: transform 0.2s; }
+        .global-mic-btn:active { transform: scale(0.9); }
+    </style>
+</head>
+<body>
+
+    <div class="kiosk-container">
+        <div class="header">똑띠 카페</div>
+
+        <!-- 1. 상단 탭 영역 -->
+        <div class="tabs" id="tab-container">
+            <div class="tab active" id="tab-커피">커피</div>
+            <div class="tab" id="tab-논커피">논커피</div>
+            <div class="tab" id="tab-에이드">에이드</div>
+            <div class="tab" id="tab-디저트">디저트</div>
+
+            <div id="guide-tab-overlay" class="guide-overlay" style="top:5px; bottom:5px; left:5px; right:5px; border-radius: 12px; display: none;"></div>
+            <div id="guide-tab-bubble" class="guide-bubble pointer-up" style="bottom: -70px; left:50%; transform: translateX(-50%); display: none; width:max-content; max-width:340px;">
+                말씀하신 <span style="color:#FFE812;">[<span id="guide-menu-name">메뉴</span>]</span>는<br>위쪽의 <span style="color:#FFE812;">[<span id="guide-category-name">카테고리</span>]</span>를 눌러서 찾아보세요.
+            </div>
+        </div>
+
+        <!-- 2. 메뉴 목록 영역 -->
+        <div class="menu-list-wrapper">
+            <div id="guide-list-overlay" class="guide-overlay" style="top:10px; bottom:10px; left:10px; right:10px; border-radius: 16px; z-index: 6;"></div>
+            <div id="guide-list-bubble" class="guide-bubble pointer-up" style="bottom: 25px; left:50%; transform: translateX(-50%); z-index: 7; width:max-content; max-width:340px;">
+                화면에서 드시고 싶은 메뉴를<br>자유롭게 골라보세요.
+            </div>
+            <div class="menu-area" id="menu-area"></div>
+        </div>
+
+        <!-- 3. 하단 장바구니 바 -->
+        <div class="cart-area">
+            <div class="cart-info">
+                <div class="cart-total-text">총 결제금액 <span class="cart-count" id="cart-count"></span></div>
+                <div class="cart-total-price" id="cart-total-price">0원</div>
+            </div>
+            <div style="position: relative;">
+                <button class="pay-btn" id="main-pay-btn" disabled onclick="showCartConfirmModal()">장바구니 확인</button>
+                
+                <div id="guide-pay-overlay" class="guide-overlay" style="top:-5px; bottom:-5px; left:-5px; right:-5px; border-radius: 16px; display: none;"></div>
+                <div id="guide-pay-bubble" class="guide-bubble pointer-down" style="top: -65px; right: 0; left: auto; transform: none; display: none; width: max-content;">
+                    고르신 메뉴가 맞다면<br>아래 버튼을 눌러주세요.
+                </div>
+                <style>#guide-pay-bubble.pointer-down::after { left: 80%; }</style>
+            </div>
+        </div>
+
+        <!-- 4. 옵션 선택 모달 -->
+        <div class="modal-overlay" id="option-modal">
+            <div class="modal">
+                <div class="option-title" id="modal-menu-title">☕ 아메리카노</div>
+                <div class="option-price-preview" id="modal-price-preview">4,500원</div>
+                
+                <div class="option-section-title">온도 선택</div>
+                <div class="option-group" id="temp-group">
+                    <button class="option-btn ice selected" id="opt-ice" onclick="selectTemp('ice')">❄️ ICE</button>
+                    <button class="option-btn hot" id="opt-hot" onclick="selectTemp('hot')">♨️ HOT</button>
+                </div>
+
+                <div class="option-section-title">사이즈 선택</div>
+                <div class="option-group" id="size-group">
+                    <button class="option-btn selected" id="opt-reg" onclick="selectSize('reg')">레귤러</button>
+                    <button class="option-btn" id="opt-lrg" onclick="selectSize('lrg')">라지 (+500원)</button>
+                </div>
+
+                <div id="ice-amount-section">
+                    <div class="option-section-title">얼음 양 선택 (퍼스널 옵션)</div>
+                    <div class="option-group" id="ice-amt-group">
+                        <button class="option-btn" onclick="selectIceAmt(this)">적게</button>
+                        <button class="option-btn selected" onclick="selectIceAmt(this)">보통</button>
+                        <button class="option-btn" onclick="selectIceAmt(this)">많이</button>
+                    </div>
+                </div>
+
+                <!-- 옵션 말풍선을 장바구니 담기 버튼 바로 아래로 내렸습니다 -->
+                <div style="position:relative; margin-top: 15px;">
+                    <button class="add-cart-btn" id="add-cart-btn" onclick="addToCart()">장바구니 담기</button>
+                    
+                    <div id="guide-opt-bubble" class="guide-bubble pointer-up" style="bottom: -105px; left:50%; transform: translateX(-50%); display:none; width:100%; max-width:320px; z-index: 105;">
+                        기본으로 맛있게 설정되어 있어요.<br>
+                        바로 <b>[장바구니 담기]</b>를 누르셔도 됩니다!<br>
+                        <span style="font-size:13px; font-weight:normal; color:#ffd6d6;">(라지로 변경할 때만 추가금이 붙어요)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. 장바구니 최종 확인 모달 -->
+        <div class="modal-overlay" id="cart-confirm-modal">
+            <div class="modal" style="height: 60%;">
+                <div class="option-title">🛒 주문 확인</div>
+                <div style="text-align: center; color: #888; margin-bottom: 10px;">주문하실 메뉴가 맞는지 확인해 주세요.</div>
+                
+                <div class="cart-list" id="cart-list-render">
+                    <!-- 장바구니 아이템 렌더링 -->
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <span style="font-size: 20px; font-weight: bold;">총 결제금액</span>
+                    <span style="font-size: 24px; font-weight: 900; color: #E63946;" id="final-confirm-price">0원</span>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="add-cart-btn" style="background: #fff; color: #222; border: 2px solid #ddd; flex: 1;" onclick="closeCartConfirmModal()">더 담기</button>
+                    <button class="add-cart-btn" style="background: #E63946; flex: 2;" onclick="showPaymentScreen()">결제 진행하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. 결제 화면 -->
+        <div class="payment-screen" id="payment-screen">
+            <div id="pay-method-view">
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 50px;">결제 수단을 선택해주세요</div>
+                
+                <div style="position: relative; margin-bottom: 80px;">
+                    <div id="guide-final-overlay" class="guide-overlay" style="top:-5px; bottom:-5px; left:-5px; right:-5px; border-radius: 16px;"></div>
+                    <div class="pay-method-btn" onclick="processPayment()">💳 신용카드 결제</div>
+                    <div class="pay-method-btn" onclick="processPayment()">📱 바코드/페이 결제</div>
+                    
+                    <div id="guide-final-bubble" class="guide-bubble pointer-up" style="bottom: -75px; left: 50%; transform: translateX(-50%); width:max-content;">
+                        원하시는 결제수단을 자유롭게 선택해주세요.
+                    </div>
+                </div>
+            </div>
+
+            <div id="pay-done-view" style="display: none;">
+                <div class="loader" id="pay-loader"></div>
+                <div id="pay-msg" style="font-size: 26px; font-weight: bold; color: #222; margin-bottom: 15px;">결제를 진행하고 있습니다...</div>
+                <div id="pay-sub-msg" style="font-size: 18px; color: #888;">잠시만 기다려주세요.</div>
+            </div>
+
+            <div id="receipt-view" style="display: none; padding-top: 30px;">
+                <div style="font-size: 80px; margin-bottom: 20px;">🧾</div>
+                <div style="font-size: 26px; font-weight: bold; color: #222; margin-bottom: 15px;">결제가 완료되었습니다!</div>
+                <div style="font-size: 20px; font-weight: bold; color: #E63946; margin-bottom: 30px;">영수증을 출력하시겠습니까?</div>
+                
+                <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 30px;">
+                    <button class="add-cart-btn" style="background: #fff; color: #222; border: 2px solid #ddd; width: 140px;" onclick="finishExperience()">아니오</button>
+                    <button class="add-cart-btn" style="background: #E63946; width: 140px; margin-top: 0;" onclick="finishExperience()">예 (출력)</button>
+                </div>
+
+                <div style="background: #f0f7ff; padding: 15px; border-radius: 12px; color: #258fff; font-size: 15px; font-weight: bold; line-height: 1.5;">
+                    💡 어떤 버튼을 누르시든 키오스크 체험이<br>종료되며 처음 목차 화면으로 돌아갑니다.
+                </div>
+            </div>
+        </div>
+
+        <!-- 🌟 똑띠 전역 마이크 버튼 & 모달 -->
+        <button class="global-mic-btn" onclick="openGlobalMic()">🎙️</button>
+
+        <div class="modal-overlay" id="global-mic-modal" style="z-index: 1000;">
+            <div class="modal" style="text-align: center;">
+                <h3 style="margin-top:0;">🎙️ 똑띠에게 말하기</h3>
+                <p style="color:#666; font-size:14px; margin-bottom:20px;">어느 화면에서든 똑띠에게 새로운 요청을 할 수 있습니다.</p>
+                <input type="text" id="global-command-input" style="width:90%; padding: 15px; border-radius:10px; border:2px solid #ddd; font-size:16px; margin-bottom: 20px; text-align: center;" placeholder="예: 서울역 가는 택시 불러줘">
+                <div style="display: flex; gap: 10px;">
+                    <button class="add-cart-btn" style="background: #ddd; color: #333; flex: 1; border: none; margin-top:0;" onclick="closeGlobalMic()">취소</button>
+                    <button class="add-cart-btn" style="background: #FF7B30; flex: 2; margin-top:0;" onclick="processGlobalCommand()">요청하기</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const menuDB = {
+            "커피": [
+                { name: "아메리카노", price: 4500, emoji: "☕", isIceOnly: false },
+                { name: "카페라떼", price: 5000, emoji: "🥛", isIceOnly: false },
+                { name: "바닐라라떼", price: 5500, emoji: "🍯", isIceOnly: false }
+            ],
+            "논커피": [
+                { name: "딸기라떼", price: 6000, emoji: "🍓", isIceOnly: true }, 
+                { name: "초코스무디", price: 6500, emoji: "🍫", isIceOnly: true }, 
+                { name: "망고주스", price: 6000, emoji: "🥭", isIceOnly: true }   
+            ],
+            "에이드": [
+                { name: "자몽에이드", price: 6500, emoji: "🍊", isIceOnly: true }, 
+                { name: "레몬에이드", price: 6000, emoji: "🍋", isIceOnly: true }  
+            ],
+            "디저트": [
+                { name: "버터쿠키", price: 3500, emoji: "🍪", isIceOnly: true }, 
+                { name: "생크림케이크", price: 7000, emoji: "🍰", isIceOnly: true }
+            ]
+        };
+
+        let targetMenu = "";
+        let targetCategory = "";
+        let cartItems = [];
+        let currentModalItem = null;
+        let selectedTemp = "ice";
+        let selectedSize = "reg";
+        let selectedIceAmt = "보통";
+
+        window.onload = () => {
+            targetMenu = localStorage.getItem('targetKeyword') || "딸기요거트스무디";
+            targetCategory = localStorage.getItem('targetCategory') || "논커피";
+
+            const exists = menuDB[targetCategory].find(item => item.name === targetMenu);
+            if (!exists) {
+                let defaultEmoji = "✨";
+                let defaultIceOnly = false;
+                if(targetCategory === "커피") { defaultEmoji = "☕"; defaultIceOnly = false; }
+                else if(targetCategory === "논커피") { defaultEmoji = "🥤"; defaultIceOnly = true; }
+                else if(targetCategory === "에이드") { defaultEmoji = "🍹"; defaultIceOnly = true; }
+                else if(targetCategory === "디저트") { defaultEmoji = "🧁"; defaultIceOnly = true; }
+
+                menuDB[targetCategory].push({ name: targetMenu, price: 5500, emoji: defaultEmoji, isIceOnly: defaultIceOnly });
+            }
+
+            document.getElementById('guide-menu-name').innerText = targetMenu;
+            document.getElementById('guide-category-name').innerText = targetCategory;
+
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.onclick = (e) => {
+                    const clickedCategory = e.target.id.replace('tab-', '');
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    document.getElementById('guide-tab-overlay').style.display = 'none';
+                    document.getElementById('guide-tab-bubble').style.display = 'none';
+                    
+                    if (cartItems.length === 0) {
+                        document.getElementById('guide-list-overlay').style.display = 'block';
+                        document.getElementById('guide-list-bubble').style.display = 'block';
+                    }
+                    renderMenu(clickedCategory);
+                };
+            });
+
+            document.getElementById('tab-커피').classList.add('active');
+            if(targetCategory === "커피" && cartItems.length === 0) {
+                document.getElementById('guide-list-overlay').style.display = 'block';
+                document.getElementById('guide-list-bubble').style.display = 'block';
+            } else if (cartItems.length === 0) {
+                document.getElementById('guide-tab-overlay').style.display = 'block';
+                document.getElementById('guide-tab-bubble').style.display = 'block';
+                document.getElementById('guide-list-overlay').style.display = 'none';
+                document.getElementById('guide-list-bubble').style.display = 'none';
+            }
+            renderMenu("커피");
+        };
+
+        function renderMenu(category) {
+            const menuArea = document.getElementById('menu-area');
+            menuArea.innerHTML = ''; 
+            menuDB[category].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'menu-item';
+                div.innerHTML = `<div class="menu-img">${item.emoji}</div><div class="menu-name">${item.name}</div><div class="menu-price">${item.price.toLocaleString()}원</div>`;
+                div.onclick = () => { openOptionModal(item); };
+                menuArea.appendChild(div);
+            });
+        }
+
+        function openOptionModal(item) {
+            currentModalItem = item;
+            selectedTemp = item.isIceOnly ? "ice" : "ice"; 
+            selectedSize = "reg";
+            selectedIceAmt = "보통";
+            document.getElementById('modal-menu-title').innerText = `${item.emoji} ${item.name}`;
+            updateModalPrice();
+
+            if(item.isIceOnly) document.getElementById('opt-hot').style.display = 'none';
+            else document.getElementById('opt-hot').style.display = 'block';
+
+            selectTemp(selectedTemp);
+            selectSize(selectedSize);
+
+            document.getElementById('option-modal').style.display = 'flex';
+            document.getElementById('guide-list-overlay').style.display = 'none';
+            document.getElementById('guide-list-bubble').style.display = 'none';
+            setTimeout(() => { document.getElementById('guide-opt-bubble').style.display = 'block'; }, 200);
+        }
+
+        function updateModalPrice() {
+            let finalPrice = currentModalItem.price;
+            if(selectedSize === 'lrg') finalPrice += 500;
+            document.getElementById('modal-price-preview').innerText = `${finalPrice.toLocaleString()}원`;
+        }
+
+        function selectTemp(temp) {
+            selectedTemp = temp;
+            document.getElementById('opt-ice').classList.remove('selected');
+            document.getElementById('opt-hot').classList.remove('selected');
+            document.getElementById(`opt-${temp}`).classList.add('selected');
+            if(temp === 'ice' && currentModalItem.name !== "생크림케이크" && currentModalItem.name !== "버터쿠키") {
+                document.getElementById('ice-amount-section').style.display = 'block';
+            } else {
+                document.getElementById('ice-amount-section').style.display = 'none';
+            }
+        }
+
+        function selectSize(size) {
+            selectedSize = size;
+            document.getElementById('opt-reg').classList.remove('selected');
+            document.getElementById('opt-lrg').classList.remove('selected');
+            document.getElementById(`opt-${size}`).classList.add('selected');
+            updateModalPrice();
+        }
+
+        function selectIceAmt(btn) {
+            document.querySelectorAll('#ice-amt-group .option-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedIceAmt = btn.innerText;
+        }
+
+        function addToCart() {
+            let itemPrice = currentModalItem.price;
+            let optionsText = [];
+            
+            if(!currentModalItem.isIceOnly && currentModalItem.name !== "생크림케이크" && currentModalItem.name !== "버터쿠키") {
+                optionsText.push(selectedTemp === 'ice' ? "ICE" : "HOT");
+            } else if(currentModalItem.name !== "생크림케이크" && currentModalItem.name !== "버터쿠키") {
+                optionsText.push("ICE (기본)");
+            }
+
+            if(selectedSize === 'lrg') {
+                itemPrice += 500;
+                optionsText.push("라지 사이즈 (+500원)");
+            } else optionsText.push("레귤러 사이즈");
+
+            if(selectedTemp === 'ice' && currentModalItem.name !== "생크림케이크" && currentModalItem.name !== "버터쿠키") {
+                optionsText.push(`얼음: ${selectedIceAmt}`);
+            }
+
+            cartItems.push({ name: currentModalItem.name, price: itemPrice, options: optionsText.join(" / ") });
+
+            document.getElementById('option-modal').style.display = 'none'; 
+            updateBottomCartBar();
+
+            document.getElementById('guide-list-overlay').style.display = 'none';
+            document.getElementById('guide-list-bubble').style.display = 'none';
+            document.getElementById('guide-opt-bubble').style.display = 'none';
+            document.getElementById('guide-pay-overlay').style.display = 'block';
+            document.getElementById('guide-pay-bubble').style.display = 'block';
+        }
+
+        function updateBottomCartBar() {
+            let totalSum = cartItems.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('cart-total-price').innerText = `${totalSum.toLocaleString()}원`;
+            document.getElementById('cart-count').innerText = `(${cartItems.length}개 담김)`;
+            document.getElementById('main-pay-btn').disabled = false;
+        }
+
+        function showCartConfirmModal() {
+            const listArea = document.getElementById('cart-list-render');
+            listArea.innerHTML = '';
+            let totalSum = 0;
+
+            cartItems.forEach(item => {
+                totalSum += item.price;
+                const div = document.createElement('div');
+                div.className = 'cart-item-row';
+                div.innerHTML = `<div><div class="cart-item-info">${item.name}</div><div class="cart-item-options">${item.options}</div></div><div class="cart-item-price">${item.price.toLocaleString()}원</div>`;
+                listArea.appendChild(div);
+            });
+
+            document.getElementById('final-confirm-price').innerText = `${totalSum.toLocaleString()}원`;
+            document.getElementById('cart-confirm-modal').style.display = 'flex';
+            document.getElementById('guide-pay-overlay').style.display = 'none';
+            document.getElementById('guide-pay-bubble').style.display = 'none';
+        }
+
+        function closeCartConfirmModal() {
+            document.getElementById('cart-confirm-modal').style.display = 'none';
+            document.getElementById('guide-pay-overlay').style.display = 'block';
+            document.getElementById('guide-pay-bubble').style.display = 'block';
+        }
+
+        function showPaymentScreen() {
+            document.getElementById('cart-confirm-modal').style.display = 'none';
+            document.getElementById('payment-screen').style.display = 'flex';
+        }
+
+        function processPayment() {
+            document.getElementById('pay-method-view').style.display = 'none';
+            document.getElementById('pay-done-view').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('pay-done-view').style.display = 'none';
+                document.getElementById('receipt-view').style.display = 'block';
+            }, 2000);
+        }
+
+        function finishExperience() { window.location.href = 'stage.html'; }
+        
+        function checkAnswer(isCorrect) {
+            if (!isCorrect) {
+                const toast = document.getElementById("toast");
+                toast.classList.add("show");
+                setTimeout(() => { toast.classList.remove("show"); }, 2000);
+            }
+        }
+    </script>
+    <script src="common.js"></script>
+</body>
+</html>
