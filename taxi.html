@@ -1,73 +1,427 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>택시 호출 시뮬레이션</title>
     <style>
         /* 기본 레이아웃 및 스마트폰 프레임 */
-        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #e9ecef; font-family: 'Pretendard', sans-serif; }
-        .mobile-container { width: 375px; height: 812px; background-color: #f4f5f9; border-radius: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); overflow: hidden; position: relative; display: flex; flex-direction: column; border: 8px solid #333; }
-        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; font-size: 14px; font-weight: 600; background-color: #fff; z-index: 20; }
-        .screen { display: none; flex: 1; flex-direction: column; position: relative; }
-        .active-screen { display: flex; }
-        
-        .header { background: #fff; padding: 15px 20px; font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 15px; position: relative; z-index: 15; }
-        .search-box { flex: 1; background: #f5f5f5; border-radius: 8px; padding: 10px 15px; color: #333; font-weight: bold; font-size: 16px; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #e9ecef;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        .mobile-container {
+            width: 375px;
+            height: 812px;
+            background-color: #f4f5f9;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 8px solid #333;
+        }
+
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            font-size: 14px;
+            font-weight: 600;
+            background-color: #fff;
+            z-index: 20;
+        }
+
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .active-screen {
+            display: flex;
+        }
+
+        .header {
+            background: #fff;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            z-index: 15;
+        }
+
+        .search-box {
+            flex: 1;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #333;
+            font-weight: bold;
+            font-size: 16px;
+        }
 
         /* 장소 목록 (화면 1) */
-        .place-item { display: flex; align-items: center; padding: 18px 20px; background: #fff; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; }
-        .place-item:hover { background-color: #f9f9f9; }
-        .place-icon { font-size: 24px; margin-right: 15px; }
-        .place-name { font-size: 16px; font-weight: bold; color: #222; margin-bottom: 4px; }
-        .place-address { font-size: 13px; color: #888; }
+        .place-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .place-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .place-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .place-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .place-address {
+            font-size: 13px;
+            color: #888;
+        }
 
         /* 상단 헤더 (화면 2) */
-        .taxi-header { background: #fff; padding: 10px 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: relative; z-index: 15; }
-        .route-pill { flex: 1; background: #f5f5f5; border-radius: 20px; padding: 12px 20px; text-align: center; font-size: 15px; font-weight: bold; color: #333; display: flex; justify-content: center; align-items: center; }
+        .taxi-header {
+            background: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 15;
+        }
+
+        .route-pill {
+            flex: 1;
+            background: #f5f5f5;
+            border-radius: 20px;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
         /* 지도 영역 및 핀 스타일 */
-        .map-placeholder { height: 320px; background-color: #e8ecef; background-image: linear-gradient(#dcdcdc 1px, transparent 1px), linear-gradient(90deg, #dcdcdc 1px, transparent 1px); background-size: 40px 40px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        .pin-start { position: absolute; top: 155px; left: 55px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.2)); }
-        .pin-start-box { background: #2A303B; color: white; padding: 7px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; }
-        .pin-start-tail { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-width: 6px 6px 0; border-style: solid; border-color: #2A303B transparent transparent transparent; }
-        .pin-end { position: absolute; top: 35px; left: 130px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2)); z-index: 5; }
-        .pin-end-box { display: flex; border-radius: 6px; overflow: hidden; font-size: 14px; font-weight: bold; }
-        .pin-end-red { background: #E63946; color: white; padding: 8px 12px; }
-        .pin-end-white { background: white; color: #333; padding: 8px 12px; }
-        .pin-end-tail { position: absolute; bottom: -6px; right: 25px; border-width: 6px 6px 0; border-style: solid; border-color: white transparent transparent transparent; }
+        .map-placeholder {
+            height: 320px;
+            background-color: #e8ecef;
+            background-image: linear-gradient(#dcdcdc 1px, transparent 1px), linear-gradient(90deg, #dcdcdc 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pin-start {
+            position: absolute;
+            top: 155px;
+            left: 55px;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+        }
+
+        .pin-start-box {
+            background: #2A303B;
+            color: white;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .pin-start-tail {
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: #2A303B transparent transparent transparent;
+        }
+
+        .pin-end {
+            position: absolute;
+            top: 35px;
+            left: 130px;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
+            z-index: 5;
+        }
+
+        .pin-end-box {
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .pin-end-red {
+            background: #E63946;
+            color: white;
+            padding: 8px 12px;
+        }
+
+        .pin-end-white {
+            background: white;
+            color: #333;
+            padding: 8px 12px;
+        }
+
+        .pin-end-tail {
+            position: absolute;
+            bottom: -6px;
+            right: 25px;
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
 
         /* 바텀 시트 & 리스트 */
-        .bottom-sheet { flex: 1; background: #f4f5f9; border-radius: 20px 20px 0 0; position: relative; z-index: 10; margin-top: -20px; padding-top: 10px; display: flex; flex-direction: column; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
-        .sheet-handle { width: 40px; height: 5px; background: #ddd; border-radius: 5px; margin: 0 auto; }
-        .taxi-list { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; flex: 1; position: relative; z-index: 3; }
-        .taxi-item { background: #fff; border: 2px solid #eee; border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; position: relative; }
-        .taxi-item.selected { border-color: #258fff; background: #f0f7ff; }
-        .taxi-info { display: flex; align-items: center; gap: 15px; }
-        .taxi-name { font-size: 16px; font-weight: bold; color: #222; }
-        .taxi-time { font-size: 13px; color: #888; margin-top: 4px; }
-        .taxi-price { font-size: 18px; font-weight: 900; }
+        .bottom-sheet {
+            flex: 1;
+            background: #f4f5f9;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            z-index: 10;
+            margin-top: -20px;
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 5px;
+            background: #ddd;
+            border-radius: 5px;
+            margin: 0 auto;
+        }
+
+        .taxi-list {
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            flex: 1;
+            position: relative;
+            z-index: 3;
+        }
+
+        .taxi-item {
+            background: #fff;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .taxi-item.selected {
+            border-color: #258fff;
+            background: #f0f7ff;
+        }
+
+        .taxi-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .taxi-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #222;
+        }
+
+        .taxi-time {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .taxi-price {
+            font-size: 18px;
+            font-weight: 900;
+        }
 
         /* 하단 버튼 */
-        .bottom-bar { background: #fff; padding: 15px 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 20; position: relative; }
-        .call-btn { width: 100%; background: #ccc; color: white; border: none; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: not-allowed; transition: 0.2s; }
-        .call-btn.active { background: #258fff; cursor: pointer; }
+        .bottom-bar {
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+            z-index: 20;
+            position: relative;
+        }
+
+        .call-btn {
+            width: 100%;
+            background: #ccc;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: not-allowed;
+            transition: 0.2s;
+        }
+
+        .call-btn.active {
+            background: #258fff;
+            cursor: pointer;
+        }
 
         /* 호출 중 화면 (화면 3) */
-        .loading-spinner { border: 6px solid #f3f3f3; border-top: 6px solid #258fff; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto 30px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+        .loading-spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #258fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         /* 똑띠 가이드 */
-        .guide-overlay { position: absolute; border: 4px solid #FF7B30; border-radius: inherit; background-color: rgba(255, 123, 48, 0.05); pointer-events: none; animation: blink 1.5s infinite; z-index: 10; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .guide-bubble { position: absolute; background-color: #FF7B30; color: #fff; padding: 12px 18px; border-radius: 20px; font-size: 14px; font-weight: bold; box-shadow: 0 4px 12px rgba(255, 123, 48, 0.3); z-index: 100; text-align: center; word-break: keep-all; line-height: 1.5; width: max-content; max-width: 280px; }
-        .guide-bubble.arrow-up::after { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); border-width: 0 6px 8px 6px; border-style: solid; border-color: transparent transparent #FF7B30 transparent; }
-        .guide-bubble.arrow-down::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-width: 8px 6px 0 6px; border-style: solid; border-color: #FF7B30 transparent transparent transparent; }
-        
-        .toast { visibility: hidden; width: 80%; max-width: 300px; background-color: #333; color: #fff; text-align: center; border-radius: 10px; padding: 16px; position: absolute; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 15px; font-weight: bold; opacity: 0; transition: opacity 0.3s; word-break: keep-all; line-height: 1.5; }
-        .toast.show { visibility: visible; opacity: 1; }
+        .guide-overlay {
+            position: absolute;
+            border: 4px solid #FF7B30;
+            border-radius: inherit;
+            background-color: rgba(255, 123, 48, 0.05);
+            pointer-events: none;
+            animation: blink 1.5s infinite;
+            z-index: 10;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .guide-bubble {
+            position: absolute;
+            background-color: #FF7B30;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255, 123, 48, 0.3);
+            z-index: 100;
+            text-align: center;
+            word-break: keep-all;
+            line-height: 1.5;
+            width: max-content;
+            max-width: 280px;
+        }
+
+        .guide-bubble.arrow-up::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 6px 8px 6px;
+            border-style: solid;
+            border-color: transparent transparent #FF7B30 transparent;
+        }
+
+        .guide-bubble.arrow-down::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 8px 6px 0 6px;
+            border-style: solid;
+            border-color: #FF7B30 transparent transparent transparent;
+        }
+
+        .toast {
+            visibility: hidden;
+            width: 80%;
+            max-width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            padding: 16px;
+            position: absolute;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 15px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            word-break: keep-all;
+            line-height: 1.5;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="mobile-container">
@@ -80,26 +434,34 @@
                 <span style="font-size: 20px; cursor:pointer;" onclick="checkAnswer(false)">❮</span>
                 <div class="search-box">🔍 <span id="header-dest">목적지</span></div>
             </div>
-            
-            <div style="flex: 1; overflow-y: auto; padding-bottom: 30px;">
-                <div style="padding: 15px 20px; font-size: 14px; color: #888; font-weight: bold; background:#f9f9f9;">장소 검색 결과</div>
-                
-                <!-- 목록 전체를 감싸는 영역 (하단에 말풍선이 들어갈 여백 70px 확보) -->
-                <div style="position: relative; padding: 5px; margin: 10px 15px 70px 15px;">
-                    <div class="guide-overlay" style="top:0; bottom:0; left:0; right:0; border-radius: 12px; z-index: 1;"></div>
-                    
-                    <!-- 말풍선을 목록 하단으로 내리고 꼬리를 위(arrow-top)로 향하게 함 -->
-                    <div class="guide-bubble arrow-top" style="bottom: -55px; z-index: 2;">검색된 목록 중 가려는 목적지를 자유롭게 선택해주세요.</div>
-                    
-                    <div class="place-item" onclick="selectPlace(this, 'screen2')" style="position: relative; z-index: 3; background: transparent;">
+
+            <div style="flex: 1; overflow-y: auto; padding-bottom: 50px;">
+                <div style="padding: 15px 20px; font-size: 14px; color: #888; font-weight: bold; background:#f9f9f9;">장소
+                    검색 결과</div>
+
+                <!-- 목록 전체를 감싸는 영역 (말풍선이 들어갈 충분한 하단 여백 90px 확보) -->
+                <div style="position: relative; padding: 5px; margin: 10px 15px 90px 15px;">
+                    <div class="guide-overlay"
+                        style="top:0; bottom:0; left:0; right:0; border-radius: 12px; z-index: 1;"></div>
+
+                    <!-- 말풍선 위치를 카드 박스 바로 바깥 아래쪽으로 깔끔하게 배치 -->
+                    <div class="guide-bubble arrow-top"
+                        style="bottom: -75px; left: 50%; transform: translateX(-50%); z-index: 2; width: max-content; max-width: 90%; white-space: nowrap;">
+                        <span style="color:#FFE812; font-weight:bold;">'<span id="guide-target-word">목적지</span>'</span>
+                        가시려는 게 맞나요?<br>맞다면 목록에서 목적지를 선택해 주세요.
+                    </div>
+
+                    <div class="place-item" onclick="selectPlace(this, 'screen2')"
+                        style="position: relative; z-index: 3; background: transparent;">
                         <div class="place-icon">📍</div>
                         <div style="flex:1;">
                             <div class="place-name" style="color:#258fff;"><span class="dynamic-dest">목적지</span></div>
                             <div class="place-address">서울특별시 ㅇㅇ구 ㅇㅇ동 123-4</div>
                         </div>
                     </div>
-                    
-                    <div class="place-item" onclick="selectPlace(this, 'screen2')" style="position: relative; z-index: 3; background: transparent;">
+
+                    <div class="place-item" onclick="selectPlace(this, 'screen2')"
+                        style="position: relative; z-index: 3; background: transparent;">
                         <div class="place-icon">🅿️</div>
                         <div style="flex:1;">
                             <div class="place-name"><span class="dynamic-dest">목적지</span> 공영주차장</div>
@@ -107,7 +469,8 @@
                         </div>
                     </div>
 
-                    <div class="place-item" onclick="selectPlace(this, 'screen2')" style="position: relative; z-index: 3; background: transparent;">
+                    <div class="place-item" onclick="selectPlace(this, 'screen2')"
+                        style="position: relative; z-index: 3; background: transparent;">
                         <div class="place-icon">☕</div>
                         <div style="flex:1;">
                             <div class="place-name"><span class="dynamic-dest">목적지</span> 근처 카페</div>
@@ -123,36 +486,54 @@
             <div class="taxi-header">
                 <span style="font-size: 22px; cursor:pointer; color:#333;" onclick="goBackToScreen1()">✕</span>
                 <div class="route-pill">
-                    내 위치 <span style="color:#bbb; margin: 0 8px;">&gt;</span> <span class="dynamic-dest" style="color:#222;">목적지</span>
+                    내 위치 <span style="color:#bbb; margin: 0 8px;">&gt;</span> <span class="dynamic-dest"
+                        style="color:#222;">목적지</span>
                 </div>
                 <span style="width:22px;"></span>
             </div>
-            
+
             <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
                 <!-- 고정된 지도 영역 -->
                 <div class="map-placeholder">
                     <svg width="100%" height="100%" style="position:absolute; top:0; left:0;">
-                        <path d="M 80,180 L 120,120 L 180,140 L 250,70" stroke="#258fff" stroke-width="5" fill="transparent" stroke-linejoin="round" />
+                        <path d="M 80,180 L 120,120 L 180,140 L 250,70" stroke="#258fff" stroke-width="5"
+                            fill="transparent" stroke-linejoin="round" />
                         <circle cx="80" cy="180" r="7" fill="#258fff" stroke="#fff" stroke-width="3" />
                         <circle cx="250" cy="70" r="7" fill="#258fff" stroke="#fff" stroke-width="3" />
                     </svg>
-                    <div class="pin-start"><div class="pin-start-box">출발 &gt;</div><div class="pin-start-tail"></div></div>
-                    <div class="pin-end"><div class="pin-end-box"><div class="pin-end-red">도착</div><div class="pin-end-white">22분 예상 &gt;</div></div><div class="pin-end-tail"></div></div>
+                    <div class="pin-start">
+                        <div class="pin-start-box">출발 &gt;</div>
+                        <div class="pin-start-tail"></div>
+                    </div>
+                    <div class="pin-end">
+                        <div class="pin-end-box">
+                            <div class="pin-end-red">도착</div>
+                            <div class="pin-end-white">22분 예상 &gt;</div>
+                        </div>
+                        <div class="pin-end-tail"></div>
+                    </div>
                 </div>
 
                 <!-- 바텀 시트 -->
                 <div class="bottom-sheet">
                     <div class="sheet-handle"></div>
-                    
+
                     <div style="position: relative; flex:1; display:flex; flex-direction:column; padding-bottom: 20px;">
-                        
+
                         <!-- 1단계: 택시 종류 섹션 -->
-                        <div id="taxi-type-section" style="display: flex; flex-direction: column; flex: 1; margin-top: 65px; position: relative;">
-                            
+                        <div id="taxi-type-section"
+                            style="display: flex; flex-direction: column; flex: 1; margin-top: 65px; position: relative;">
+
+                            <!-- 말풍선이 겹치지 않도록 위쪽에 안전하게 띄움 -->
                             <div id="guide-taxi-list">
-                                <div class="guide-overlay" style="top:-10px; bottom:-10px; left:15px; right:15px; border-radius: 16px; z-index: 1;"></div>
-                                <div class="guide-bubble arrow-down" style="top: -65px; left: 50%; transform: translateX(-50%); z-index: 2;">
-                                    <span style="color:#FFE812; font-size:16px;">'<span id="confirm-dest-text">목적지</span>'</span>(으)로 가시나요?<br>맞다면 택시 종류를 골라주세요.
+                                <div class="guide-overlay"
+                                    style="top:-10px; bottom:-10px; left:15px; right:15px; border-radius: 16px; z-index: 1;">
+                                </div>
+
+                                <div class="guide-bubble arrow-down"
+                                    style="top: -65px; left: 50%; transform: translateX(-50%); z-index: 2; padding: 10px 16px; font-size: 14px; line-height: 1.4; width: max-content; max-width: 90%; white-space: nowrap;">
+                                    <span style="color:#FFE812; font-weight:bold;">'<span
+                                            id="confirm-dest-text">목적지</span>'</span>(으)로 선택되었습니다!<br>원하시는 택시 종류를 골라주세요.
                                 </div>
                             </div>
 
@@ -160,7 +541,10 @@
                                 <div class="taxi-item" onclick="selectTaxi(this)">
                                     <div class="taxi-info">
                                         <div style="font-size: 30px;">🚕</div>
-                                        <div><div class="taxi-name">일반 호출</div><div class="taxi-time">약 5분 후 도착</div></div>
+                                        <div>
+                                            <div class="taxi-name">일반 호출</div>
+                                            <div class="taxi-time">약 5분 후 도착</div>
+                                        </div>
                                     </div>
                                     <div class="taxi-price">6,800원</div>
                                 </div>
@@ -168,15 +552,21 @@
                                 <div class="taxi-item" onclick="selectTaxi(this)">
                                     <div class="taxi-info">
                                         <div style="font-size: 30px;">🚙</div>
-                                        <div><div class="taxi-name">블루 (빠른 배차)</div><div class="taxi-time">약 3분 후 도착</div></div>
+                                        <div>
+                                            <div class="taxi-name">블루 (빠른 배차)</div>
+                                            <div class="taxi-time">약 3분 후 도착</div>
+                                        </div>
                                     </div>
                                     <div class="taxi-price">9,800원</div>
                                 </div>
-                                
+
                                 <div class="taxi-item" onclick="selectTaxi(this)">
                                     <div class="taxi-info">
                                         <div style="font-size: 30px;">🚐</div>
-                                        <div><div class="taxi-name">벤티 (대형/예약)</div><div class="taxi-time">약 8분 후 도착</div></div>
+                                        <div>
+                                            <div class="taxi-name">벤티 (대형/예약)</div>
+                                            <div class="taxi-time">약 8분 후 도착</div>
+                                        </div>
                                     </div>
                                     <div class="taxi-price">15,000원</div>
                                 </div>
@@ -184,11 +574,16 @@
                         </div>
 
                         <!-- 2단계: 결제 수단 섹션 -->
-                        <div id="payment-section" style="display: none; flex-direction: column; flex: 1; margin-top: 65px; position: relative;">
-                            
+                        <div id="payment-section"
+                            style="display: none; flex-direction: column; flex: 1; margin-top: 65px; position: relative;">
+
                             <div id="guide-payment-list">
-                                <div class="guide-overlay" style="top:-10px; bottom:-10px; left:15px; right:15px; border-radius: 16px; z-index: 1;"></div>
-                                <div class="guide-bubble arrow-down" style="top: -65px; left: 50%; transform: translateX(-50%); z-index: 2;">결제하실 수단을<br>자유롭게 선택해주세요.</div>
+                                <div class="guide-overlay"
+                                    style="top:-10px; bottom:-10px; left:15px; right:15px; border-radius: 16px; z-index: 1;">
+                                </div>
+                                <div class="guide-bubble arrow-down"
+                                    style="top: -65px; left: 50%; transform: translateX(-50%); z-index: 2;">결제하실
+                                    수단을<br>자유롭게 선택해주세요.</div>
                             </div>
 
                             <div class="taxi-list">
@@ -217,17 +612,22 @@
 
                 <!-- 💡 [다음] 버튼 가이드 (택시를 골랐을 때 뜹니다) -->
                 <div id="guide-next-btn" style="display: none;">
-                    <div class="guide-overlay" style="top:15px; bottom:15px; left:20px; right:20px; border-radius: 12px; z-index: 10;"></div>
-                    <div class="guide-bubble arrow-down" style="top: -55px; left: 50%; transform: translateX(-50%); z-index: 11;">
+                    <div class="guide-overlay"
+                        style="top:15px; bottom:15px; left:20px; right:20px; border-radius: 12px; z-index: 10;"></div>
+                    <div class="guide-bubble arrow-down"
+                        style="top: -55px; left: 50%; transform: translateX(-50%); z-index: 11;">
                         선택하신 택시로 결정하셨다면,<br>아래 <b>[다음]</b> 버튼을 눌러주세요.
                     </div>
                 </div>
 
                 <!-- 💡 [호출하기] 버튼 가이드 (결제수단을 골랐을 때 뜹니다) -->
                 <div id="guide-call-btn" style="display: none;">
-                    <div class="guide-overlay" style="top:15px; bottom:15px; left:20px; right:20px; border-radius: 12px; z-index: 10;"></div>
-                    <div class="guide-bubble arrow-down" style="top: -65px; left: 50%; transform: translateX(-50%); z-index: 11;">
-                        <span style="color:#FFE812;">'<span id="confirm-pay-text">결제수단</span>'</span>(을)를 선택하셨네요!<br>이제 <b>[호출하기]</b>를 눌러 택시를 부를까요?
+                    <div class="guide-overlay"
+                        style="top:15px; bottom:15px; left:20px; right:20px; border-radius: 12px; z-index: 10;"></div>
+                    <div class="guide-bubble arrow-down"
+                        style="top: -65px; left: 50%; transform: translateX(-50%); z-index: 11;">
+                        <span style="color:#FFE812;">'<span id="confirm-pay-text">결제수단</span>'</span>(을)를 선택하셨네요!<br>이제
+                        <b>[호출하기]</b>를 눌러 택시를 부를까요?
                     </div>
                 </div>
             </div>
@@ -246,8 +646,10 @@
                 <div style="font-size: 26px; font-weight: bold; color: #222; margin-bottom: 15px;">기사님이 배정되었습니다!</div>
                 <div style="font-size: 18px; color: #258fff; font-weight: bold; margin-bottom: 10px;">서울 12가 3456</div>
                 <div style="color: #888; margin-bottom: 40px;">약 3분 후 도착할 예정입니다.</div>
-                
-                <button style="background: #258fff; color: white; border: none; padding: 18px 30px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%;" onclick="window.location.href='stage.html'">
+
+                <button
+                    style="background: #258fff; color: white; border: none; padding: 18px 30px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%;"
+                    onclick="window.location.href='stage.html'">
                     체험 종료 (목차로)
                 </button>
             </div>
@@ -256,12 +658,13 @@
     </div>
 
     <script>
-        let currentStep = 'taxi'; 
+        let currentStep = 'taxi';
 
         window.onload = () => {
             const destination = localStorage.getItem('targetKeyword') || '이태원역';
             const destElements = document.querySelectorAll('.dynamic-dest');
             destElements.forEach(el => { el.innerText = destination; });
+            document.getElementById('guide-target-word').innerText = localStorage.getItem('targetKeyword');
         };
 
         // 목록에서 장소 클릭 시
@@ -269,15 +672,15 @@
             let clickedName = "";
             const nameEl = element.querySelector('.place-name');
             if (nameEl) clickedName = nameEl.innerText;
-            else clickedName = element.innerText.split('\n')[0]; 
+            else clickedName = element.innerText.split('\n')[0];
 
             const destElements = document.querySelectorAll('.dynamic-dest');
             destElements.forEach(el => { el.innerText = clickedName; });
-            
+
             document.getElementById('confirm-dest-text').innerText = clickedName;
 
             resetBottomSheet();
-            
+
             const screens = document.querySelectorAll('.screen');
             screens.forEach(screen => screen.classList.remove('active-screen'));
             document.getElementById('screen2').classList.add('active-screen');
@@ -294,14 +697,14 @@
             currentStep = 'taxi';
             document.getElementById('taxi-type-section').style.display = 'flex';
             document.getElementById('payment-section').style.display = 'none';
-            
+
             // 가이드 초기화
             document.getElementById('guide-taxi-list').style.display = 'block';
             document.getElementById('guide-next-btn').style.display = 'none';
             document.getElementById('guide-call-btn').style.display = 'none';
 
             document.querySelectorAll('.taxi-item').forEach(el => el.classList.remove('selected'));
-            
+
             const btn = document.getElementById('main-action-btn');
             btn.innerText = '다음';
             btn.disabled = true;
@@ -312,7 +715,7 @@
         function selectTaxi(element) {
             document.querySelectorAll('#taxi-type-section .taxi-item').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
-            
+
             const btn = document.getElementById('main-action-btn');
             btn.disabled = false;
             btn.classList.add('active');
@@ -326,7 +729,7 @@
         function selectPayment(element) {
             document.querySelectorAll('#payment-section .taxi-item').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
-            
+
             const btn = document.getElementById('main-action-btn');
             btn.disabled = false;
             btn.classList.add('active');
@@ -334,7 +737,7 @@
             // 💡 선택한 결제 수단 이름을 똑띠 말풍선에 동기화
             let clickedPayName = "";
             const nameEl = element.querySelector('.taxi-name');
-            if(nameEl) clickedPayName = nameEl.innerText.replace(" (앱 자동결제)", ""); // 너무 길지 않게 다듬기
+            if (nameEl) clickedPayName = nameEl.innerText.replace(" (앱 자동결제)", ""); // 너무 길지 않게 다듬기
             document.getElementById('confirm-pay-text').innerText = clickedPayName;
 
             // 💡 결제수단을 고르면 [결제 목록 가이드]는 숨기고 [호출 버튼 가이드]를 띄웁니다!
@@ -350,15 +753,15 @@
                 // 스와이프 효과
                 document.getElementById('taxi-type-section').style.display = 'none';
                 document.getElementById('payment-section').style.display = 'flex';
-                
+
                 // 가이드 전환
                 document.getElementById('guide-next-btn').style.display = 'none';
                 document.getElementById('guide-payment-list').style.display = 'block';
-                
+
                 btn.innerText = '호출하기';
                 btn.disabled = true;
                 btn.classList.remove('active');
-                
+
                 currentStep = 'payment';
 
             } else if (currentStep === 'payment') {
@@ -382,7 +785,8 @@
             }
         }
     </script>
-    
+
     <script src="common.js"></script>
 </body>
+
 </html>

@@ -416,7 +416,8 @@
         <div id="screen1" class="screen active-screen">
             <div class="kkt-header">
                 <span style="color:#bbb; cursor:pointer;" onclick="checkAnswer(false)">❮</span>
-                <div style="flex:1; background:#f5f5f5; border-radius:20px; padding:8px 15px;" class="dynamic-name">대상자</div>
+                <div style="flex:1; background:#f5f5f5; border-radius:20px; padding:8px 15px;" class="dynamic-name">대상자
+                </div>
             </div>
             <div style="padding: 10px 20px; font-size: 13px; color: #888; font-weight: bold;">채팅방</div>
 
@@ -446,7 +447,8 @@
 
                     <div class="guide-overlay" style="top:5px; left:10px; right:10px; bottom:5px;"></div>
                     <div class="guide-bubble" style="bottom:-65px; left:50%; transform: translateX(-50%);">
-                        사진을 보내시려는 대상자가 맞으신가요?<br>맞다면 채팅창을 클릭해주세요.
+                        <span style="color:#FFE812; font-weight:bold;">'<span id="guide-target-word">대상</span>'</span>에게
+                        보내시는 게 맞나요?<br>맞다면 채팅방을 선택해 주세요.
                     </div>
                 </div>
             </div>
@@ -460,7 +462,8 @@
             </div>
 
             <div class="chat-bg">
-                <div style="background:#fff; padding:10px; border-radius:10px; display:inline-block; max-width:70%; align-self:flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <div
+                    style="background:#fff; padding:10px; border-radius:10px; display:inline-block; max-width:70%; align-self:flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                     사진 빨리 보내주세요~~ 기다리고 있어요!
                 </div>
             </div>
@@ -468,8 +471,11 @@
             <div class="chat-input-bar">
                 <div class="plus-btn" onclick="checkAnswer(true, 'screen2')">
                     +
-                    <div class="guide-overlay" style="top:-6px; left:-6px; right:-6px; bottom:-6px; border-radius:50%; border-width:3px; background:transparent;"></div>
-                    <div class="guide-bubble above" style="left:50%; transform:translateX(-15%);">사진을 보내기 위해<br>더보기 버튼(+)을 눌러주세요.</div>
+                    <div class="guide-overlay"
+                        style="top:-6px; left:-6px; right:-6px; bottom:-6px; border-radius:50%; border-width:3px; background:transparent;">
+                    </div>
+                    <div class="guide-bubble above" style="left:50%; transform:translateX(-15%);">사진을 보내기 위해<br>더보기
+                        버튼(+)을 눌러주세요.</div>
                 </div>
                 <div class="input-box" onclick="checkAnswer(false)"></div>
                 <div style="font-size:24px; color:#bbb; cursor:pointer;" onclick="checkAnswer(false)">🙂</div>
@@ -478,16 +484,38 @@
             <!-- 가짜 키보드 영역 -->
             <div class="fake-keyboard" onclick="checkAnswer(false)">
                 <div class="key-row">
-                    <div class="key">ㅂ</div><div class="key">ㅈ</div><div class="key">ㄷ</div><div class="key">ㄱ</div><div class="key">ㅅ</div>
-                    <div class="key">ㅛ</div><div class="key">ㅕ</div><div class="key">ㅑ</div><div class="key">ㅐ</div><div class="key">ㅔ</div>
+                    <div class="key">ㅂ</div>
+                    <div class="key">ㅈ</div>
+                    <div class="key">ㄷ</div>
+                    <div class="key">ㄱ</div>
+                    <div class="key">ㅅ</div>
+                    <div class="key">ㅛ</div>
+                    <div class="key">ㅕ</div>
+                    <div class="key">ㅑ</div>
+                    <div class="key">ㅐ</div>
+                    <div class="key">ㅔ</div>
                 </div>
                 <div class="key-row">
-                    <div class="key">ㅁ</div><div class="key">ㄴ</div><div class="key">ㅇ</div><div class="key">ㄹ</div><div class="key">ㅎ</div>
-                    <div class="key">ㅗ</div><div class="key">ㅓ</div><div class="key">ㅏ</div><div class="key">ㅣ</div>
+                    <div class="key">ㅁ</div>
+                    <div class="key">ㄴ</div>
+                    <div class="key">ㅇ</div>
+                    <div class="key">ㄹ</div>
+                    <div class="key">ㅎ</div>
+                    <div class="key">ㅗ</div>
+                    <div class="key">ㅓ</div>
+                    <div class="key">ㅏ</div>
+                    <div class="key">ㅣ</div>
                 </div>
                 <div class="key-row">
-                    <div class="key special">⇧</div><div class="key">ㅋ</div><div class="key">ㅌ</div><div class="key">ㅊ</div><div class="key">ㅍ</div>
-                    <div class="key">ㅠ</div><div class="key">ㅜ</div><div class="key">ㅡ</div><div class="key special">⌫</div>
+                    <div class="key special">⇧</div>
+                    <div class="key">ㅋ</div>
+                    <div class="key">ㅌ</div>
+                    <div class="key">ㅊ</div>
+                    <div class="key">ㅍ</div>
+                    <div class="key">ㅠ</div>
+                    <div class="key">ㅜ</div>
+                    <div class="key">ㅡ</div>
+                    <div class="key special">⌫</div>
                 </div>
                 <div class="key-row">
                     <div class="key special" style="flex: 1.5;">123</div>
@@ -506,25 +534,39 @@
                 <span>앨범</span>
                 <button id="send-btn" class="send-btn" onclick="sendPhotos()" disabled>
                     전송
-                    <div class="guide-overlay" style="top:-4px; left:-4px; right:-4px; bottom:-4px; border-width:3px; display:none;" id="send-guide-overlay"></div>
-                    <div class="guide-bubble right-align" style="top:45px; bottom:auto; display:none;" id="send-guide-bubble">선택을 마치셨다면<br>전송 버튼을 눌러주세요.</div>
+                    <div class="guide-overlay"
+                        style="top:-4px; left:-4px; right:-4px; bottom:-4px; border-width:3px; display:none;"
+                        id="send-guide-overlay"></div>
+                    <div class="guide-bubble right-align" style="top:45px; bottom:auto; display:none;"
+                        id="send-guide-bubble">선택을 마치셨다면<br>전송 버튼을 눌러주세요.</div>
                 </button>
             </div>
 
-            <div style="padding: 10px; text-align: center; background-color: #FF7B30; color: white; font-weight: bold; font-size: 13px;">
+            <div
+                style="padding: 10px; text-align: center; background-color: #FF7B30; color: white; font-weight: bold; font-size: 13px;">
                 보낼 사진을 자유롭게 여러 장 선택해 보세요!
             </div>
 
             <div class="gallery-grid">
-                <div class="gallery-item" data-emoji="🍜" onclick="togglePhoto(this)">🍜<div class="check-badge"></div></div>
-                <div class="gallery-item" data-emoji="☕" onclick="togglePhoto(this)">☕<div class="check-badge"></div></div>
-                <div class="gallery-item" data-emoji="🐶" onclick="togglePhoto(this)">🐶<div class="check-badge"></div></div>
-                <div class="gallery-item" data-emoji="🌺" onclick="togglePhoto(this)">🌺<div class="check-badge"></div></div>
-                <div class="gallery-item" data-emoji="🌳" onclick="togglePhoto(this)">🌳<div class="check-badge"></div></div>
-                <div class="gallery-item" data-emoji="🏞️" onclick="togglePhoto(this)">🏞️<div class="check-badge"></div></div>
-                <div class="gallery-item" data-emoji="🍕" onclick="togglePhoto(this)">🍕<div class="check-badge"></div></div>
-                <div class="gallery-item" data-emoji="🎂" onclick="togglePhoto(this)">🎂<div class="check-badge"></div></div>
-                <div class="gallery-item" data-emoji="🚗" onclick="togglePhoto(this)">🚗<div class="check-badge"></div></div>
+                <div class="gallery-item" data-emoji="🍜" onclick="togglePhoto(this)">🍜<div class="check-badge"></div>
+                </div>
+                <div class="gallery-item" data-emoji="☕" onclick="togglePhoto(this)">☕<div class="check-badge"></div>
+                </div>
+                <div class="gallery-item" data-emoji="🐶" onclick="togglePhoto(this)">🐶<div class="check-badge"></div>
+                </div>
+                <div class="gallery-item" data-emoji="🌺" onclick="togglePhoto(this)">🌺<div class="check-badge"></div>
+                </div>
+                <div class="gallery-item" data-emoji="🌳" onclick="togglePhoto(this)">🌳<div class="check-badge"></div>
+                </div>
+                <div class="gallery-item" data-emoji="🏞️" onclick="togglePhoto(this)">🏞️<div class="check-badge">
+                    </div>
+                </div>
+                <div class="gallery-item" data-emoji="🍕" onclick="togglePhoto(this)">🍕<div class="check-badge"></div>
+                </div>
+                <div class="gallery-item" data-emoji="🎂" onclick="togglePhoto(this)">🎂<div class="check-badge"></div>
+                </div>
+                <div class="gallery-item" data-emoji="🚗" onclick="togglePhoto(this)">🚗<div class="check-badge"></div>
+                </div>
             </div>
         </div>
 
@@ -536,30 +578,42 @@
             </div>
 
             <div class="chat-bg" id="final-chat-box">
-                <div style="background:#fff; padding:10px; border-radius:10px; display:inline-block; max-width:70%; align-self:flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <div
+                    style="background:#fff; padding:10px; border-radius:10px; display:inline-block; max-width:70%; align-self:flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                     사진 빨리 보내주세요~~ 기다리고 있어요!
                 </div>
             </div>
 
             <div style="background: #fff; padding: 20px; text-align: center; border-top: 1px solid #eee;">
                 <div style="color: #FF7B30; font-weight: bold; font-size: 18px; margin-bottom: 15px;">🎉 사진 전송 완료!</div>
-                <button style="background-color: #258fff; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px;" onclick="window.location.href='stage.html'">목차로 돌아가기</button>
+                <button
+                    style="background-color: #258fff; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px;"
+                    onclick="window.location.href='stage.html'">목차로 돌아가기</button>
             </div>
         </div>
 
         <!-- 🌟 똑띠 전역 마이크 버튼 & 모달 -->
         <button class="global-mic-btn" onclick="openGlobalMic()">🎙️</button>
 
-        <div id="global-mic-modal" style="display: none; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center;">
-            <div style="background: #fff; width: 85%; border-radius: 20px; padding: 30px; text-align: center; box-sizing: border-box; position: relative;">
+        <div id="global-mic-modal"
+            style="display: none; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center;">
+            <div
+                style="background: #fff; width: 85%; border-radius: 20px; padding: 30px; text-align: center; box-sizing: border-box; position: relative;">
                 <h3 style="margin-top:0; font-size: 24px; color: #222;">🎙️ 똑띠에게 말하기</h3>
-                <p style="color:#666; font-size:15px; margin-bottom:20px; word-break: keep-all;">어느 화면에서든 똑띠에게 새로운 요청을 할 수 있습니다.</p>
+                <p style="color:#666; font-size:15px; margin-bottom:20px; word-break: keep-all;">어느 화면에서든 똑띠에게 새로운 요청을 할
+                    수 있습니다.</p>
 
-                <input type="text" id="global-command-input" style="width:100%; padding: 15px; border-radius:10px; border:2px solid #ddd; font-size:16px; margin-bottom: 20px; text-align: center; box-sizing: border-box;" placeholder="예: 서울역 가는 택시 불러줘">
+                <input type="text" id="global-command-input"
+                    style="width:100%; padding: 15px; border-radius:10px; border:2px solid #ddd; font-size:16px; margin-bottom: 20px; text-align: center; box-sizing: border-box;"
+                    placeholder="예: 서울역 가는 택시 불러줘">
 
                 <div style="display: flex; gap: 10px;">
-                    <button style="width: 100%; padding: 18px; background: #ddd; color: #333; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; flex: 1;" onclick="closeGlobalMic()">취소</button>
-                    <button style="width: 100%; padding: 18px; background: #FF7B30; color: white; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; flex: 2;" onclick="processGlobalCommand()">요청하기</button>
+                    <button
+                        style="width: 100%; padding: 18px; background: #ddd; color: #333; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; flex: 1;"
+                        onclick="closeGlobalMic()">취소</button>
+                    <button
+                        style="width: 100%; padding: 18px; background: #FF7B30; color: white; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; flex: 2;"
+                        onclick="processGlobalCommand()">요청하기</button>
                 </div>
             </div>
         </div>
@@ -570,7 +624,8 @@
         window.onload = () => {
             const targetName = localStorage.getItem('targetKeyword') || '대상자';
             const nameElements = document.querySelectorAll('.dynamic-name');
-            nameElements.forEach(el => {el.innerText = targetName;});
+            nameElements.forEach(el => { el.innerText = targetName; });
+            document.getElementById('guide-target-word').innerText = localStorage.getItem('targetKeyword');
         };
 
         let selectedPhotos = [];
@@ -645,7 +700,7 @@
             } else {
                 const toast = document.getElementById("toast");
                 toast.classList.add("show");
-                setTimeout(() => {toast.classList.remove("show");}, 2000);
+                setTimeout(() => { toast.classList.remove("show"); }, 2000);
             }
         }
     </script>

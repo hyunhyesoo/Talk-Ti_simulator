@@ -131,6 +131,23 @@
     <script>
         // 카드를 클릭했을 때 해당 번호를 가지고 input.html 로 이동합니다.
         function goToInput(stageNum) {
+            
+            // 💡 1. 스테이지 번호에 따라 어떤 시나리오인지 알아냅니다.
+            let scenario = "";
+            if (stageNum === 1) {
+                scenario = "kakaotalk"; // 1번은 카톡
+            } else if (stageNum === 2) {
+                scenario = "map";       // 2번은 길찾기
+            } else if (stageNum === 3) {
+                scenario = "taxi";      // 3번은 택시
+            } else if (stageNum === 4) {
+                scenario = "kiosk";     // 4번은 키오스크
+            }
+
+            // 💡 2. 똑띠의 머릿속(localStorage)에 방금 알아낸 시나리오를 저장해둡니다.
+            localStorage.setItem('currentScenario', scenario);
+
+            // 3. 원래대로 input.html로 이동합니다.
             window.location.href = `input.html?stage=${stageNum}`;
         }
     </script>

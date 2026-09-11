@@ -101,7 +101,7 @@
         <div class="menu-list-wrapper">
             <div id="guide-list-overlay" class="guide-overlay" style="top:10px; bottom:10px; left:10px; right:10px; border-radius: 16px; z-index: 6;"></div>
             <div id="guide-list-bubble" class="guide-bubble pointer-up" style="bottom: 25px; left:50%; transform: translateX(-50%); z-index: 7; width:max-content; max-width:340px;">
-                화면에서 드시고 싶은 메뉴를<br>자유롭게 골라보세요.
+                말씀하신 <span style="color:#FFE812; font-weight:bold;">'<span id="guide-target-menu">메뉴</span>'</span>(을)를 찾았어요!<br>원하시는 메뉴를 자유롭게 골라주세요.
             </div>
             <div class="menu-area" id="menu-area"></div>
         </div>
@@ -288,6 +288,7 @@
 
             document.getElementById('guide-menu-name').innerText = targetMenu;
             document.getElementById('guide-category-name').innerText = targetCategory;
+            document.getElementById('guide-target-menu').innerText = targetMenu;
 
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.onclick = (e) => {
@@ -322,10 +323,27 @@
         function renderMenu(category) {
             const menuArea = document.getElementById('menu-area');
             menuArea.innerHTML = ''; 
+
+            // 💡 기존에 있던 오버레이를 가져와서 일단 숨깁니다.
+            const listOverlay = document.getElementById('guide-list-overlay');
+            if (listOverlay) listOverlay.style.display = 'none'; 
+
             menuDB[category].forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'menu-item';
                 div.innerHTML = `<div class="menu-img">${item.emoji}</div><div class="menu-name">${item.name}</div><div class="menu-price">${item.price.toLocaleString()}원</div>`;
+                
+                // 💡 핵심: 현재 그리는 메뉴가 '내가 요청한 메뉴'라면? 오버레이를 이 카드 안에 쏙 넣고 켭니다!
+                if (item.name === targetMenu && cartItems.length === 0 && listOverlay) {
+                    listOverlay.style.top = '-5px';
+                    listOverlay.style.bottom = '-5px';
+                    listOverlay.style.left = '-5px';
+                    listOverlay.style.right = '-5px';
+                    listOverlay.style.borderRadius = '16px'; // 메뉴 카드 모서리에 맞춤
+                    div.appendChild(listOverlay);
+                    listOverlay.style.display = 'block';
+                }
+
                 div.onclick = () => { openOptionModal(item); };
                 menuArea.appendChild(div);
             });
